@@ -14,8 +14,26 @@ from typing import Any
 import httpx
 import streamlit as st
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-REQUEST_TIMEOUT = 10.0
+
+def _api_base_url() -> str:
+    """База API: env → секреты Streamlit → локальный дефолт.
+
+    В Streamlit Community Cloud значение задаётся в App → Settings → Secrets
+    и читается через ``st.secrets`` (``os.getenv`` их не видит).
+    """
+    from_env = os.getenv("API_BASE_URL")
+    if from_env:
+        return from_env
+    try:
+        return str(st.secrets.get("API_BASE_URL", "http://localhost:8000"))
+    except Exception:  # секретов нет вовсе (локальный запуск) — не падаем
+        return "http://localhost:8000"
+
+
+API_BASE_URL = _api_base_url()
+# Запас на холодный старт бесплатного хостинга (Render усыпляет сервис после
+# простоя и будит первый запрос ~30–50 с).
+REQUEST_TIMEOUT = 30.0
 
 
 def api_get(path: str, **params: Any) -> httpx.Response:
