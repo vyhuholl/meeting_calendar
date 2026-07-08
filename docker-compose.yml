@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Файл БД в примонтированном томе, чтобы данные переживали пересоздание.
+      DATABASE_URL: "sqlite:////data/meeting_calendar.db"
+    volumes:
+      - db-data:/data
+    command:
+      ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  ui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      API_BASE_URL: "http://api:8000"
+    depends_on:
+      - api
+    command:
+      ["uv", "run", "streamlit", "run", "ui/app.py",
+       "--server.address", "0.0.0.0", "--server.port", "8501"]
+
+volumes:
+  db-data:

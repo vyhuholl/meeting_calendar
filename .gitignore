@@ -1,3 +1,6 @@
+# macOS system file
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -54,6 +57,10 @@ cover/
 # Translations
 *.mo
 *.pot
+
+# Local SQLite database (default DATABASE_URL)
+meeting_calendar.db
+*.db
 
 # Django stuff:
 *.log
